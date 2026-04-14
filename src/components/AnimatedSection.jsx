@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 
 export default function AnimatedSection({ children, id, className = "", style }) {
   return (
-    <motion.section 
+    <Motion.section 
       id={id}
       className={`section ${className}`}
       style={{ perspective: 1000, ...style }}
@@ -12,6 +12,6 @@ export default function AnimatedSection({ children, id, className = "", style })
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {children}
-    </motion.section>
+    </Motion.section>
   );
 }
