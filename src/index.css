@@ -1,0 +1,302 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-dark: #000000;
+  --bg-darker: #050505;
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+  --accent: #ffffff;
+  --accent-secondary: #e5e5e5;
+  --accent-glow: rgba(99, 102, 241, 0.2);
+  --gradient-text: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  --glass-bg: rgba(25, 25, 25, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-dark);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--text-secondary);
+}
+
+ul {
+  list-style: none;
+}
+
+/* Glass Card Foundation */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 0px;
+  /* Sharper edges for B&W theme */
+  padding: 2.5rem;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px -10px var(--accent-glow);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Base Layout - Full Page Width */
+.section {
+  padding: 8rem 5%;
+  width: 100%;
+  position: relative;
+}
+
+.section-title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  letter-spacing: -1.5px;
+  text-transform: uppercase;
+}
+
+.section-title::after {
+  content: "";
+  height: 2px;
+  flex: 1;
+  background: var(--text-primary);
+}
+
+/* Navigation */
+.glass-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 0.8rem 5%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  z-index: 100;
+}
+
+.nav-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  align-items: center;
+}
+
+/* Hero Section */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 5%;
+  width: 100%;
+}
+
+.hero-content {
+  z-index: 10;
+}
+
+.hero-greeting {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.hero-name {
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -3px;
+  margin-bottom: 1rem;
+}
+
+.hero-role {
+  font-size: 2.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  letter-spacing: -1px;
+}
+
+.hero-bio {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 1rem 2.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: var(--text-primary);
+  color: var(--bg-dark);
+  border: 1px solid var(--text-primary);
+}
+
+.btn-primary:hover {
+  background: var(--text-secondary);
+  border-color: var(--text-secondary);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Shared Grids */
+.staggered-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 3rem;
+}
+
+/* Projects */
+.project-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: auto;
+}
+
+.project-tags span {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  padding: 0.3rem 0.8rem;
+}
+
+/* Leetcode & Achievements Segment */
+.split-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 8rem;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .split-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-name {
+    font-size: 4rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.skill-tags span {
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover .skill-tags span {
+  background: var(--text-primary);
+  color: var(--bg-dark);
+  border-color: var(--text-primary);
+}
