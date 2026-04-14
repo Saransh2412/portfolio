@@ -95,6 +95,7 @@ const skillGroups = [
 
 function App() {
   const [lcData, setLcData] = useState(null);
+  const [lcLoading, setLcLoading] = useState(true);
   const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
@@ -112,17 +113,102 @@ function App() {
     };
   }, [introDone]);
 
-  // Fetch real-time Leetcode statistics
+  // Fetch live LeetCode statistics and avoid showing invented fallback values.
   useEffect(() => {
-    fetch('https://leetcode-stats-api.herokuapp.com/Saranshsethi')
-      .then(res => res.json())
-      .then(data => {
-        if(data.status === 'success') {
-          setLcData(data);
+    const username = 'Saranshsethi';
+
+    const setNormalizedData = (data) => {
+      if (!data) return false;
+
+      if (
+        typeof data.easySolved === 'number' &&
+        typeof data.mediumSolved === 'number' &&
+        typeof data.hardSolved === 'number'
+      ) {
+        setLcData({
+          easySolved: data.easySolved,
+          mediumSolved: data.mediumSolved,
+          hardSolved: data.hardSolved,
+          totalSolved:
+            typeof data.totalSolved === 'number'
+              ? data.totalSolved
+              : data.easySolved + data.mediumSolved + data.hardSolved,
+        });
+        return true;
+      }
+
+      const stats = data?.data?.matchedUser?.submitStats?.acSubmissionNum;
+      if (!Array.isArray(stats)) return false;
+
+      const easySolved = stats.find((item) => item.difficulty === 'Easy')?.count ?? 0;
+      const mediumSolved = stats.find((item) => item.difficulty === 'Medium')?.count ?? 0;
+      const hardSolved = stats.find((item) => item.difficulty === 'Hard')?.count ?? 0;
+
+      setLcData({
+        easySolved,
+        mediumSolved,
+        hardSolved,
+        totalSolved: easySolved + mediumSolved + hardSolved,
+      });
+      return true;
+    };
+
+    const fetchLeetCodeData = async () => {
+      try {
+        const graphQlResponse = await fetch('https://leetcode.com/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `
+              query userProfileCalendar($username: String!) {
+                matchedUser(username: $username) {
+                  submitStats {
+                    acSubmissionNum {
+                      difficulty
+                      count
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { username },
+          }),
+        });
+
+        if (graphQlResponse.ok) {
+          const graphQlData = await graphQlResponse.json();
+          if (setNormalizedData(graphQlData)) {
+            return;
+          }
         }
-      })
-      .catch(err => console.error('Error fetching LeetCode data:', err));
+      } catch (error) {
+        console.error('Error fetching LeetCode GraphQL data:', error);
+      }
+
+      try {
+        const fallbackResponse = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
+        if (!fallbackResponse.ok) {
+          throw new Error(`Fallback API returned ${fallbackResponse.status}`);
+        }
+        const fallbackData = await fallbackResponse.json();
+        setNormalizedData(fallbackData);
+      } catch (error) {
+        console.error('Error fetching LeetCode fallback data:', error);
+      } finally {
+        setLcLoading(false);
+      }
+    };
+
+    fetchLeetCodeData();
   }, []);
+
+  const easySolved = lcData?.easySolved ?? null;
+  const mediumSolved = lcData?.mediumSolved ?? null;
+  const hardSolved = lcData?.hardSolved ?? null;
+  const totalSolved = lcData?.totalSolved ?? null;
+  const easyWidth = totalSolved ? (easySolved / totalSolved) * 100 : 0;
+  const mediumWidth = totalSolved ? (mediumSolved / totalSolved) * 100 : 0;
+  const hardWidth = totalSolved ? (hardSolved / totalSolved) * 100 : 0;
 
   // Scroll-reveal for timeline items
   useEffect(() => {
@@ -387,11 +473,14 @@ function App() {
                    <FaCode size={30} color="var(--accent)" />
                 </div>
                 <h3 style={{ fontSize: '3.5rem', fontWeight: 800, margin: '1.5rem 0 0 0' }}>
-                  {lcData ? `${lcData.totalSolved}+` : '500+'}
+                  {typeof totalSolved === 'number' ? totalSolved : '--'}
                 </h3>
                 <p style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '1.5rem' }}>Problems Solved</p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '300px' }}>
                   Continuous learning through algorithmic challenges & data structures. Consistent practice on Leetcode focusing on Data Structures, Algorithms, and System Design.
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', minHeight: '1.5rem', marginBottom: '1.5rem' }}>
+                  {lcLoading ? 'Fetching live LeetCode stats...' : totalSolved === null ? 'Live LeetCode stats unavailable right now.' : 'Live stats from your LeetCode profile.'}
                 </p>
                 <div>
                   <a href="https://leetcode.com/u/Saranshsethi" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ padding: '0.6rem 1.5rem', fontSize: '0.95rem' }}>
@@ -405,30 +494,30 @@ function App() {
                 <div className="lc-bar-wrapper">
                   <div className="lc-bar-header">
                     <span style={{ color: '#00b8a3' }}>Easy</span>
-                    <span><strong style={{color: '#00b8a3', fontSize: '1.2rem'}}>{lcData?.easySolved || 150}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
+                    <span><strong style={{color: '#00b8a3', fontSize: '1.2rem'}}>{easySolved ?? '--'}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
                   </div>
                   <div className="lc-bar-bg">
-                    <div className="lc-bar-fill" style={{ width: `${lcData ? (lcData.easySolved / lcData.totalSolved)*100 : 30}%`, background: '#00b8a3' }}></div>
+                    <div className="lc-bar-fill" style={{ width: `${easyWidth}%`, background: '#00b8a3' }}></div>
                   </div>
                 </div>
                 {/* Medium */}
                 <div className="lc-bar-wrapper">
                   <div className="lc-bar-header">
                     <span style={{ color: '#ffc01e' }}>Medium</span>
-                    <span><strong style={{color: '#ffc01e', fontSize: '1.2rem'}}>{lcData?.mediumSolved || 300}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
+                    <span><strong style={{color: '#ffc01e', fontSize: '1.2rem'}}>{mediumSolved ?? '--'}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
                   </div>
                   <div className="lc-bar-bg">
-                    <div className="lc-bar-fill" style={{ width: `${lcData ? (lcData.mediumSolved / lcData.totalSolved)*100 : 60}%`, background: '#ffc01e' }}></div>
+                    <div className="lc-bar-fill" style={{ width: `${mediumWidth}%`, background: '#ffc01e' }}></div>
                   </div>
                 </div>
                 {/* Hard */}
                 <div className="lc-bar-wrapper">
                   <div className="lc-bar-header">
                     <span style={{ color: '#ff375f' }}>Hard</span>
-                    <span><strong style={{color: '#ff375f', fontSize: '1.2rem'}}>{lcData?.hardSolved || 50}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
+                    <span><strong style={{color: '#ff375f', fontSize: '1.2rem'}}>{hardSolved ?? '--'}</strong> <span style={{color: 'var(--text-secondary)'}}>solved</span></span>
                   </div>
                   <div className="lc-bar-bg">
-                    <div className="lc-bar-fill" style={{ width: `${lcData ? (lcData.hardSolved / lcData.totalSolved)*100 : 10}%`, background: '#ff375f' }}></div>
+                    <div className="lc-bar-fill" style={{ width: `${hardWidth}%`, background: '#ff375f' }}></div>
                   </div>
                 </div>
               </div>
